@@ -1,27 +1,23 @@
-import React from 'react';
-import css from 'components/Filter/Filter.module.css';
+import { Component } from 'react';
+import PropTypes from 'prop-types';
 
-const Filter = ({
-  UpHandleFilterChange,
-  UphandleDelete,
-  UpfilteredContacts,
-  Upfilter,
-}) => (
-  <div>
-    <h2 className={css.title}>Contacts</h2>
-    <label className={css.label}>
-      Find contacts by name
-      <input className={css.input} type="text" value={Upfilter} onChange={UpHandleFilterChange} />
-    </label>
-    <ul>
-      {UpfilteredContacts.map(contact => (
-        <li className={css.item} key={contact.id}>
-          {contact.name}: {contact.number}
-          <button onClick={() => UphandleDelete(contact.id)}>Delete</button>
-        </li>
-      ))}
-    </ul>
-  </div>
-);
+class Filter extends Component {
+  static propTypes = {
+    filter: PropTypes.string.isRequired,
+    onChange: PropTypes.func.isRequired,
+  };
+  handleOnChange = ({ currentTarget }) => {
+    const value = currentTarget.value;
+    this.props.onChange(value);
+  };
+  render() {
+    return (
+      <>
+        <h3>Find contacts by name</h3>
+        <input value={this.props.filter} onChange={this.handleOnChange}></input>
+      </>
+    );
+  }
+}
 
 export default Filter;

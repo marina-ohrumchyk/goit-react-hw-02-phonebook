@@ -1,10 +1,74 @@
-import React from 'react';
 import Contact from 'components/Contact/Contact';
+import { Component } from 'react';
+import { MainContainer } from 'components/App.styled';
+import { nanoid } from 'nanoid';
+import Filter from 'components/Filter/Filter';
+import ContactList from 'components/ContactList/ContactList';
 
-export default function App() {
-  return (
-    <div>
-      <Contact />
-    </div>
-  );
+class App extends Component {
+  defaultState = {
+    contacts: [],
+    filter: '',
+  };
+
+  state = { ...this.defaultState };
+
+  handleOnSubitContactForm = contact => {
+    if (!this.findContact(contact.name)) {
+      this.addContact(contact);
+      return true;
+    } else return false;
+  };
+
+  addContact = contact => {
+    const toAdd = { ...contact, id: nanoid() };
+    this.setState(prevState => ({
+      contacts: [...prevState.contacts, toAdd],
+    }));
+  };
+
+  findContact = name => {
+    const { contacts } = this.state;
+    const toFind = name.toLowerCase();
+    if (contacts.find(({ name }) => name.toLowerCase() === toFind)) return true;
+    else return false;
+  };
+
+  handleOnFilterChange = filter => {
+    this.setState({ filter });
+  };
+
+  showContacts = () => {
+    const { contacts } = this.state;
+    const filter = this.state.filter.toLocaleLowerCase();
+
+    return contacts.filter(({ name }) => name.toLowerCase().includes(filter));
+  };
+
+  handleOnDeleteContact = contactID => {
+    this.setState(({ contacts }) => ({
+      contacts: contacts.filter(({ id }) => id !== contactID),
+    }));
+  };
+
+  render() {
+    return (
+      <MainContainer>
+        <h1>Phonebook</h1>
+        <Contact onSubmit={this.handleOnSubitContactForm} />
+
+        <h2>Contacts</h2>
+        <Filter
+          filter={this.state.filter}
+          onChange={this.handleOnFilterChange}
+        />
+        <ContactList
+          contacts={this.showContacts()}
+          onDelete={this.handleOnDeleteContact}
+        />
+      </MainContainer>
+    );
+  }
 }
+
+export default App;

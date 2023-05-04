@@ -1,88 +1,55 @@
-import React, { Component } from 'react';
-import { nanoid } from 'nanoid';
-import Phonebook from 'components/Phonebook/Phonebook';
-import Filter from 'components/Filter/Filter';
+import { Component } from 'react';
+import { FormButton, FormContact, FormField, FormInput } from 'components/Contact/Contact.styled';
+import PropTypes from 'prop-types';
 
-
-class Contacts extends Component {
-  state = {
-    filter: '',
-    contacts: [],
-    number: '',
-    name: '',
+class Contact extends Component {
+  static propTypes = {
+    onSubmit: PropTypes.func.isRequired,
   };
 
-  addContact = event => {
+  handleOnSubmit = event => {
     event.preventDefault();
-    const { name, contacts } = this.state;
 
-    if (contacts.some(contact => contact.name === name)) {
-      alert(`${name} is already in contacts`);
-      return;
-    }
+    const form = event.currentTarget;
+    const name = form.elements.name.value;
+    const number = form.elements.number.value;
+
+    if (this.props.onSubmit({ name, number })) form.reset();
+    else alert(`${name} already in contacts`);
   };
 
-  handleChange = event => {
-    const { name, value } = event.currentTarget;
+  handleOnChange = ({ currentTarget }) => {
+    const { name, value } = currentTarget;
+    console.log(name, value);
     this.setState({ [name]: value });
   };
-
-  handleSubmit = event => {
-    event.preventDefault();
-
-    const { name, number } = this.state;
-
-    if (this.state.contacts.some(contact => contact.name === name)) {
-      alert(`${name} is already in contacts`);
-      return;
-    }
-
-    const newContact = { id: nanoid(), name, number };
-    this.setState(prevState => ({
-      contacts: [...prevState.contacts, newContact],
-      name: '',
-      number: '',
-    }));
-  };
-
-  handleDelete = contactId => {
-    this.setState(prevState => ({
-      contacts: prevState.contacts.filter(contact => contact.id !== contactId),
-    }));
-  };
-
-  handleFilterChange = event => {
-    this.setState({ filter: event.currentTarget.value });
-  };
-
-  getFilteredContacts = () => {
-    const { contacts, filter } = this.state;
-    const normalizedFilter = filter.toLowerCase();
-
-    return contacts.filter(contact =>
-      contact.name.toLowerCase().includes(normalizedFilter)
-    );
-  };
-
   render() {
     return (
-      <div>
-        <Phonebook
-          upHandleSubmit={this.handleSubmit}
-          uphandleChange={this.handleChange}
-          upName={this.state.name}
-          upNumber={this.state.number}
-        />
-
-        <Filter
-          UpHandleFilterChange={this.handleFilterChange}
-          UphandleDelete={this.handleDelete}
-          UpfilteredContacts={this.getFilteredContacts()}
-          Upfilter={this.state.filter}
-        />
-      </div>
+      <FormContact onSubmit={this.handleOnSubmit}>
+        <FormField>
+          Name
+          <FormInput
+            type="text"
+            name="name"
+            pattern="^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
+            title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
+            required
+          />
+        </FormField>
+        <FormField>
+          Phone
+          <FormInput
+            type="tel"
+            name="number"
+            pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
+            title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
+            required
+          />
+        </FormField>
+        <FormButton type="submit">Add contact</FormButton>
+      </FormContact>
     );
   }
 }
 
-export default Contacts;
+export default Contact;
